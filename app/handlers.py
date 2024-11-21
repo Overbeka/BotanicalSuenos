@@ -1,6 +1,5 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from aiogram.dispatcher import CallbackData
 from aiogram.filters import CommandStart, Command
 
 
@@ -70,4 +69,8 @@ async def bouquet1(callback: CallbackQuery):
 async def bouquet2(callback: CallbackQuery):
     await callback.answer('')
     await callback.message.edit_text('Выберите сезонность букета:', reply_markup=await kb.get_bouquets())
-    
+
+
+@router.callback_query(F.data.startswith("page_"))
+async def pagination(callback: CallbackQuery):
+    pass

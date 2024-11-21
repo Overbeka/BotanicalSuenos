@@ -1,22 +1,18 @@
 import os
 import asyncio
 
-from dotenv import load_dotenv
+from config import TOKEN
 
 from aiogram import Bot, Dispatcher
 
 from app.handlers import router
-# from app.database.models import async_main, add_data
+from app.database.models import async_main
 
 
 async def main():
-    load_dotenv()
 
-    # await async_main()
-    #
-    # await add_data()
-
-    bot = Bot(token=os.getenv('TOKEN'))
+    await async_main()
+    bot = Bot(token=TOKEN)
     dp = Dispatcher()
 
     dp.include_router(router)

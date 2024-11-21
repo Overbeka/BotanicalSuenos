@@ -43,6 +43,3 @@ async def page_inline(current_page, total_pages):
     if current_page < total_pages:
         keyboard.add(InlineKeyboardButton(text='Вперед »', callback_data=f'page_{current_page + 1}'))
     return keyboard.adjust().as_markup()
-
-
-
