@@ -10,7 +10,7 @@ from app.database.requests import get_users, set_item
 admin = Router()
 
 
-class Newsletter(StatesGroup):
+class News(StatesGroup):
     message = State()
 
 
@@ -33,18 +33,17 @@ admin.message.filter(Admin())
 
 @admin.message(Command('admin'))
 async def admin_panel(message: Message):
-    await message.answer('Возможные команды:\n/newsletter\n/add_item')
+    await message.answer('Возможные команды:\n/news\n/add_item')
 
 
-@admin.message(Command('newsletter'))
+@admin.message(Command('news'))
 async def newsletter(message: Message, state: FSMContext):
     await state.set_state(Newsletter.message)
     await message.answer('Введите сообщение для пользователей')
 
 
-@admin.message(Newsletter.message)
+@admin.message(News.message)
 async def newsletter_message(message: Message, state: FSMContext):
-    await message.answer('Подождите... идёт рассылка.')
     for user in await get_users():
         try:
             await message.send_copy(chat_id=user.tg_id)
