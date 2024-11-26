@@ -38,7 +38,7 @@ async def admin_panel(message: Message):
 
 @admin.message(Command('news'))
 async def newsletter(message: Message, state: FSMContext):
-    await state.set_state(Newsletter.message)
+    await state.set_state(News.message)
     await message.answer('Введите сообщение для пользователей')
 
 
