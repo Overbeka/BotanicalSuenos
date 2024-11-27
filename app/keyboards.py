@@ -18,14 +18,14 @@ async def delete_from_basket(order_id):
     keyboard = InlineKeyboardBuilder()
     keyboard.add(InlineKeyboardButton(text='Удалить из корзины', callback_data=f'delete_{order_id}'))
     keyboard.add(InlineKeyboardButton(text='Оформить заказ', callback_data=f'buy_{order_id}'))
-    return keyboard.adjust(2).as_markup()
+    return keyboard.adjust(1).as_markup()
 
 
 async def basket(order_id):
     keyboard = InlineKeyboardBuilder()
     keyboard.add(InlineKeyboardButton(text='Добавить в корзину', callback_data=f'order_{order_id}'))
     keyboard.add(InlineKeyboardButton(text='Назад', callback_data='to_main'))
-    return keyboard.adjust(2).as_markup()
+    return keyboard.adjust(1).as_markup()
 
 
 async def categories():

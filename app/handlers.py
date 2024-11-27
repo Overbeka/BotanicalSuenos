@@ -6,7 +6,9 @@ import app.keyboards as kb
 from app.database.requests import (get_item_by_id, set_user,
                                    set_basket, get_basket, get_item_by_id, delete_basket)
 
+
 router = Router()
+ADMIN_ID = '258999004'
 
 
 @router.message(CommandStart())
@@ -82,18 +84,30 @@ async def delete_from_basket(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith('buy_'))
 async def delete_from_basket(callback: CallbackQuery):
+    baskets = await get_basket(callback.from_user.id)
+    user_name = callback.from_user.username
+    basket_items = []
+    for basket in baskets:
+        item = await get_item_by_id(basket.item)
+        if item:
+            basket_items.append(f"{item.name} - {item.price} руб.")
+
+    basket_message = f"Новый заказ от @{user_name}:\n" + "\n".join(basket_items)
+    await callback.bot.send_message(ADMIN_ID, basket_message)
+
     await delete_basket(callback.from_user.id, callback.data.split('_')[1])
     await callback.message.delete()
     await callback.message.answer('Спасибо за заказ. Мы свяжемся с Вами в ближайшее время',
                                   reply_markup=kb.main)
-    await callback.bot.send_message(chat_id=258999004, text="Привет! У тебя новый заказ!")
 
 
 @router.message(Command('contacts'))
 @router.callback_query(F.data == 'contacts')
 async def contacts(message: Message | CallbackQuery):
+    response_text = 'Наш номер телефона: 8911*******, наш instagram:'
+
     if isinstance(message, Message):
-        await message.answer('''Наш номер телефона: 8911*******, наш instagram:''')
+        await message.answer(response_text)
     else:
         await message.answer('')
-        await message.message.answer('''Наш номер телефона: 8911*******, наш instagram:''')
+        await message.message.answer(response_text)
