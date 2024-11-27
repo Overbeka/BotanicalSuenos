@@ -25,7 +25,7 @@ class AddItem(StatesGroup):
 
 class Admin(Filter):
     async def __call__(self, message: Message):
-        return message.from_user.id in [258999004, 5525270361]
+        return message.from_user.id in [258999004]
 
 
 admin.message.filter(Admin())

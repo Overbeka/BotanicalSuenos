@@ -56,7 +56,8 @@ async def category(callback: CallbackQuery):
 @router.callback_query(F.data.startswith('order_'))
 async def basket(callback: CallbackQuery):
     await set_basket(callback.from_user.id, callback.data.split('_')[1])
-    await callback.answer('Товар добавлен в корзину')
+    await callback.answer('')
+    await callback.message.answer('Товар добавлен в корзину')
 
 
 @router.callback_query(F.data == 'basket')
@@ -83,10 +84,16 @@ async def delete_from_basket(callback: CallbackQuery):
 async def delete_from_basket(callback: CallbackQuery):
     await delete_basket(callback.from_user.id, callback.data.split('_')[1])
     await callback.message.delete()
-    await callback.message.answer('Спасибо за заказ. Мы свяжемся с Вами в ближайшее время')
+    await callback.message.answer('Спасибо за заказ. Мы свяжемся с Вами в ближайшее время',
+                                  reply_markup=kb.main)
+    await callback.bot.send_message(chat_id=258999004, text="Привет! У тебя новый заказ!")
 
 
+@router.message(Command('contacts'))
 @router.callback_query(F.data == 'contacts')
-async def contacts(callback: CallbackQuery):
-    await callback.answer('')
-    await callback.message.answer('''Наш номер телефона: 8911*******, наш instagram:''')
+async def contacts(message: Message | CallbackQuery):
+    if isinstance(message, Message):
+        await message.answer('''Наш номер телефона: 8911*******, наш instagram:''')
+    else:
+        await message.answer('')
+        await message.message.answer('''Наш номер телефона: 8911*******, наш instagram:''')
