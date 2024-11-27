@@ -45,6 +45,14 @@ class SubCategory(Base):
     name: Mapped[str] = mapped_column(String(20))
 
 
+class SubSubCategory(Base):
+    __tablename__ = 'subsubcategories'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    subcategory: Mapped[int] = mapped_column(ForeignKey('subcategories.id'))
+    name: Mapped[str] = mapped_column(String(20))
+
+
 class Size(Base):
     __tablename__ = 'sizes'
 

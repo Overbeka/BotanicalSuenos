@@ -25,7 +25,7 @@ class AddItem(StatesGroup):
 
 class Admin(Filter):
     async def __call__(self, message: Message):
-        return message.from_user.id in [258999004]
+        return message.from_user.id in [258999004, 5525270361]
 
 
 admin.message.filter(Admin())
@@ -71,12 +71,13 @@ async def add_item_category(callback: CallbackQuery, state: FSMContext):
     await state.update_data(category=callback.data.split('_')[1])
     await state.set_state(AddItem.sub_category)
     await callback.answer('')
-    await callback.message.answer('Выберите подкатегорию товара', reply_markup=await kb.sub_categories())
+    await callback.message.answer('Выберите подкатегорию товара',
+                                  reply_markup=await kb.sub_categories(callback.data.split('_')[1]))
 
 
 @admin.callback_query(AddItem.sub_category)
 async def add_item_category(callback: CallbackQuery, state: FSMContext):
-    await state.update_data(sub_category=callback.data.split('_')[1])
+    await state.update_data(subcategory=callback.data.split('_')[1])
     await state.set_state(AddItem.size)
     await callback.answer('')
     await callback.message.answer('Введите размеры товара')
