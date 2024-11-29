@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from app.database.requests import get_categories, get_sub_categories, get_sub_sub_categories, get_items_by_category
+from app.database.requests import get_categories, get_sub_categories, get_items_by_category
 
 main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Каталог', callback_data='catalog')],
@@ -42,23 +42,13 @@ async def sub_categories(cat_id):
     all_sub_categories = await get_sub_categories(cat_id)
     keyboard = InlineKeyboardBuilder()
     for sub_category in all_sub_categories:
-        if sub_category.id == 5:
+        if sub_category.id == 1:
             keyboard.add(InlineKeyboardButton(text=sub_category.name,
-                                              callback_data=f'sub_category_{sub_category.id}'))
+                                              callback_data=f'item_{sub_category.id}'))
             continue
         keyboard.add(InlineKeyboardButton(text=sub_category.name,
                                           callback_data=f'item_{sub_category.id}'))
-    keyboard.add(InlineKeyboardButton(text='Назад', callback_data='to_main'))
-    return keyboard.adjust(2).as_markup()
-
-
-async def sub_sub_categories():
-    all_sub_sub_categories = await get_sub_sub_categories()
-    keyboard = InlineKeyboardBuilder()
-    for sub_sub_category in all_sub_sub_categories:
-        keyboard.add(InlineKeyboardButton(text=sub_sub_category.name,
-                                          callback_data=f'item_{sub_sub_category.subcategory}'))
-    keyboard.add(InlineKeyboardButton(text='Назад', callback_data='to_main'))
+    keyboard.add(InlineKeyboardButton(text='Назад', callback_data='to_cat'))
     return keyboard.adjust(2).as_markup()
 
 
@@ -70,3 +60,5 @@ async def items(category_id: int):
                                           callback_data=f"item_{item.id}"))
     keyboard.add(InlineKeyboardButton(text='Назад', callback_data='to_main'))
     return keyboard.adjust(2).as_markup()
+
+

@@ -1,4 +1,4 @@
-from app.database.models import User, Category, SubCategory, SubSubCategory, Size, Item, Basket
+from app.database.models import User, Category, SubCategory, Item, Basket
 from app.database.models import async_session
 
 from sqlalchemy import select, update, delete
@@ -47,11 +47,6 @@ async def get_categories():
 async def get_sub_categories(cat_id):
     async with async_session() as session:
         return await session.scalars(select(SubCategory).where(SubCategory.category == cat_id))
-
-
-async def get_sub_sub_categories():
-    async with async_session() as session:
-        return await session.scalars(select(SubSubCategory))
 
 
 async def get_items_by_category(category_id: int):

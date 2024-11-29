@@ -45,21 +45,6 @@ class SubCategory(Base):
     name: Mapped[str] = mapped_column(String(20))
 
 
-class SubSubCategory(Base):
-    __tablename__ = 'subsubcategories'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    subcategory: Mapped[int] = mapped_column(ForeignKey('subcategories.id'))
-    name: Mapped[str] = mapped_column(String(20))
-
-
-class Size(Base):
-    __tablename__ = 'sizes'
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(2))
-
-
 class Item(Base):
     __tablename__ = 'items'
 
@@ -67,7 +52,7 @@ class Item(Base):
     name: Mapped[str] = mapped_column(String(35))
     category: Mapped[int] = mapped_column(ForeignKey('categories.id'))
     subcategory: Mapped[int] = mapped_column(ForeignKey('subcategories.id'))
-    size: Mapped[int] = mapped_column(ForeignKey('sizes.id'))
+    size: Mapped[int] = mapped_column(String(3))
     price: Mapped[str] = mapped_column(String(15))
     photo: Mapped[str] = mapped_column(String(128))
 

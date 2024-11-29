@@ -3,12 +3,11 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart, Command
 
 import app.keyboards as kb
-from app.database.requests import (get_item_by_id, set_user,
-                                   set_basket, get_basket, get_item_by_id, delete_basket)
-
+from app.database.requests import (set_user, set_basket,
+                                   get_basket, get_item_by_id, delete_basket)
+from app.config import ADMIN_ID
 
 router = Router()
-ADMIN_ID = '258999004'
 
 
 @router.message(CommandStart())
@@ -19,11 +18,12 @@ async def cmd_start(message: Message | CallbackQuery):
         await message.answer('Добро пожаловать в Botanical Sueños!',
                              reply_markup=kb.main)
     else:
-        await message.answer('Вы вернулись на главную')
+        await message.answer('')
         await message.message.answer("Добро пожаловать в Botanical Sueños!",
                                      reply_markup=kb.main)
 
 
+@router.callback_query(F.data == 'to_cat')
 @router.callback_query(F.data == 'catalog')
 async def catalog(callback: CallbackQuery):
     await callback.answer('')
@@ -38,13 +38,6 @@ async def category(callback: CallbackQuery):
                                      reply_markup=await kb.sub_categories(
                                          callback.data.split('_')[1]
                                      ))
-
-
-@router.callback_query(F.data.startswith('sub_category_'))
-async def category(callback: CallbackQuery):
-    await callback.answer('')
-    await callback.message.edit_text('Выберите сезон:',
-                                     reply_markup=await kb.sub_sub_categories())
 
 
 @router.callback_query(F.data.startswith('item_'))
@@ -69,7 +62,7 @@ async def basket(callback: CallbackQuery):
     counter = 0
     for item_info in basket:
         item = await get_item_by_id(item_info.item)
-        await callback.message.answer_photo(photo=item.photo, caption=f'{item.name}\n\nЦена: {item.price} рублей',
+        await callback.message.answer_photo(photo=item.photo, caption=f'{item.name}\n\nДоступные размеры: {item.size}\n\nЦена: {item.price} рублей',
                                             reply_markup=await kb.delete_from_basket(item.id))
         counter += 1
     await callback.message.answer('Ваша корзина пуста') if counter == 0 else await callback.answer('')
@@ -104,10 +97,8 @@ async def delete_from_basket(callback: CallbackQuery):
 @router.message(Command('contacts'))
 @router.callback_query(F.data == 'contacts')
 async def contacts(message: Message | CallbackQuery):
-    response_text = 'Наш номер телефона: 8911*******, наш instagram:'
-
     if isinstance(message, Message):
-        await message.answer(response_text)
+        await message.answer('''Наш номер телефона: 8911*******, наш instagram:''')
     else:
         await message.answer('')
-        await message.message.answer(response_text)
+        await message.message.answer('''Наш номер телефона: 8911*******, наш instagram:''')

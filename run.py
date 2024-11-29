@@ -17,6 +17,7 @@ async def main():
 
     await async_main()
     bot_commands = [
+        BotCommand(command="/admin", description="Команды для администраторов"),
         BotCommand(command="/start", description="Запустить бота"),
         BotCommand(command="/contacts", description="Список контактов.")
     ]
