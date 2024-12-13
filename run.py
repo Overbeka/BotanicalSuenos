@@ -1,10 +1,9 @@
 import os
 import asyncio
 
-from dotenv import load_dotenv
-
 from aiogram import Bot, Dispatcher
 
+from config import TOKEN, TEST_TOKEN
 from app.database.models import async_main
 from app.handlers import router
 from app.admin import admin
@@ -13,7 +12,6 @@ from aiogram.types import BotCommand
 
 
 async def main():
-    load_dotenv()
 
     await async_main()
     bot_commands = [
@@ -22,7 +20,7 @@ async def main():
         BotCommand(command="/contacts", description="Список контактов.")
     ]
 
-    bot = Bot(token=os.getenv('TOKEN'))
+    bot = Bot(token=TEST_TOKEN)
     dp = Dispatcher()
     dp.include_routers(admin, router)
     await bot.set_my_commands(bot_commands)

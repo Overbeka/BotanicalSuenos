@@ -1,5 +1,4 @@
-import os
-from dotenv import load_dotenv
+from config import DB_URL
 
 from sqlalchemy import BigInteger, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -7,9 +6,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 
 from typing import List
 
-load_dotenv()
 
-engine = create_async_engine(url=os.getenv('SQLALCHEMY_URL'),
+engine = create_async_engine(url=DB_URL,
                              echo=True)
 
 async_session = async_sessionmaker(engine)
@@ -52,12 +50,23 @@ class Item(Base):
     name: Mapped[str] = mapped_column(String(35))
     category: Mapped[int] = mapped_column(ForeignKey('categories.id'))
     subcategory: Mapped[int] = mapped_column(ForeignKey('subcategories.id'))
-    size: Mapped[int] = mapped_column(String(3))
-    price: Mapped[str] = mapped_column(String(15))
+    description: Mapped[int] = mapped_column(String(256))
+    sizes: Mapped[str] = mapped_column(String(10))
+    prices: Mapped[str] = mapped_column(String(25))
     photo: Mapped[str] = mapped_column(String(128))
+    position: Mapped[int] = mapped_column()
 
     category_rel: Mapped['Category'] = relationship(back_populates='item_rel')
     basket_rel: Mapped[List['Basket']] = relationship(back_populates='item_rel')
+
+
+class Collage(Base):
+    __tablename__ = 'collages'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    category: Mapped[int] = mapped_column(ForeignKey('categories.id'))
+    subcategory: Mapped[int] = mapped_column(ForeignKey('subcategories.id'))
+    photo: Mapped[str] = mapped_column(String(128))
 
 
 class Basket(Base):
