@@ -3,6 +3,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart, Command, Filter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from config import ADMIN_ID
 
 import app.keyboards as kb
 from app.database.requests import get_users, set_item, set_collage, count_items, get_last_item
@@ -33,7 +34,7 @@ class AddCollage(StatesGroup):
 
 class Admin(Filter):
     async def __call__(self, message: Message):
-        return message.from_user.id in [258999004, 1082661645]
+        return message.from_user.id in ADMIN_ID
 
 
 admin.message.filter(Admin())
