@@ -80,6 +80,17 @@ class Basket(Base):
     item_rel: Mapped['Item'] = relationship(back_populates='basket_rel')
 
 
+class Order(Base):
+    __tablename__ = 'orders'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_name: Mapped[str] = mapped_column(String(20))
+    full_name: Mapped[str] = mapped_column(String(40))
+    contact: Mapped[str] = mapped_column(String(25))
+    items: Mapped[str] = mapped_column(String(256))
+    date: Mapped[str] = mapped_column(String(20))
+
+
 async def async_main():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

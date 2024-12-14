@@ -1,4 +1,4 @@
-from app.database.models import User, Category, SubCategory, Item, Basket, Collage
+from app.database.models import User, Category, SubCategory, Item, Basket, Collage, Order
 from app.database.models import async_session
 
 from sqlalchemy import select, update, delete, func
@@ -115,11 +115,6 @@ async def get_items_by_category(category_id: int):
         return items
 
 
-async def get_items_by_collage_id(collage_id):
-    async with async_session() as session:
-        items = await session.scalars(select(Item).where(Item.collage == collage_id))
-
-
 async def get_item_by_id(item_id: int):
     async with async_session() as session:
         item = await session.scalar(select(Item).where(Item.id == item_id))
@@ -132,16 +127,23 @@ async def get_item_name_by_id(item_id: int):
         return item.name if item else "Неизвестный товар"
 
 
-async def get_item_by_size_and_price(size: str, price: int):
+async def user_orders(user_name, full_name, contact, items, date):
     async with async_session() as session:
-        item = await session.scalar(select(Item).where(Item.sizes.like(f'%{size}%') and Item.prices.like(f'%{price}%')))
-        if item:
-            sizes = item.sizes.split('/')
-            prices = item.prices.split('/')
-            sizes_prices = [{'size': size, 'price': int(price)} for size, price in zip(sizes, prices) if size == size and int(price) == price]
-            return {
-                'item': item,
-                'sizes_prices': sizes_prices
-            }
-        else:
-            return None
+        new_order = Order(
+            user_name=user_name,
+            full_name=full_name,
+            contact=contact,
+            items="\n".join(items),
+            date=date
+        )
+        session.add(new_order)
+        await session.commit()
+
+
+async def get_orders():
+    async with async_session() as session:
+        orders = await session.execute(select(Order))
+        orders_list = orders.scalars().all()
+        return orders_list
+
+

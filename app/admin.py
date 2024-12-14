@@ -6,7 +6,7 @@ from aiogram.fsm.state import State, StatesGroup
 from config import ADMIN_ID
 
 import app.keyboards as kb
-from app.database.requests import get_users, set_item, set_collage, count_items, get_last_item
+from app.database.requests import get_users, set_item, set_collage, count_items, get_last_item, get_orders
 
 admin = Router()
 
@@ -42,7 +42,7 @@ admin.message.filter(Admin())
 
 @admin.message(Command('admin'))
 async def admin_panel(message: Message):
-    await message.answer('Возможные команды:\n/news\n/add_item\n/add_collage')
+    await message.answer('Возможные команды:\n/news\n/add_item\n/add_collage\n/orders')
 
 
 @admin.message(Command('news'))
@@ -168,3 +168,22 @@ async def add_collage_photo(message: Message, state: FSMContext):
     await set_collage(data)
     await message.answer('Коллаж успешно добавлен')
     await state.clear()
+
+
+@admin.message(Command('orders'))
+async def send_orders(message: Message):
+    orders = await get_orders()
+    if not orders:
+        await message.answer("Нет заказов.")
+        return
+    orders_message = "Список заказов:\n\n"
+    for order in orders:
+        orders_message += (f"Номер заказа: {order.id}\n"
+                           f"Имя пользователя: @{order.user_name}\n"
+                           f"Полное имя: {order.full_name}\n"
+                           f"Контакт: {order.contact}\n"
+                           f"Товары:\n{order.items}\n\n"
+                           f"Дата заказа: {order.date}\n\n")
+
+    await message.answer(orders_message)
+

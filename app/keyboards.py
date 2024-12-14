@@ -10,14 +10,10 @@ main = InlineKeyboardMarkup(inline_keyboard=[
      InlineKeyboardButton(text='Контакты', callback_data='contacts')]
 ])
 
-to_main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='На главную', callback_data='to_main')]
-])
-
 
 contact = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text='Отправить контакт', request_contact=True)]
-], resize_keyboard=True, input_field_placeholder='Отправьте контакт')
+    [KeyboardButton(text='Отправить контакт', request_contact=True)]],
+    resize_keyboard=True, input_field_placeholder='Отправьте контакт')
 
 
 async def categories():
@@ -36,18 +32,17 @@ async def sub_categories(cat_id):
     for sub_category in subcategories:
         keyboard.add(InlineKeyboardButton(text=sub_category.name,
                                           callback_data=f'sub_{sub_category.name}'))
-    keyboard.add(InlineKeyboardButton(text='Авторские', callback_data='author'))
     keyboard.add(InlineKeyboardButton(text='Назад', callback_data='to_cat'))
     return keyboard.adjust(2).as_markup()
 
 
-async def get_items_number(subcategory_id):
+async def get_items_name(subcategory_id):
     item_names = await get_items_by_subcategory(subcategory_id)
     keyboard = InlineKeyboardBuilder()
     for item in item_names:
         keyboard.add(InlineKeyboardButton(text=item.name,
                                           callback_data=f'item_{item.id}'))
-    keyboard.add(InlineKeyboardButton(text='Назад', callback_data='back'))
+    keyboard.add(InlineKeyboardButton(text='Назад', callback_data='to_main'))
     return keyboard.adjust(2).as_markup()
 
 

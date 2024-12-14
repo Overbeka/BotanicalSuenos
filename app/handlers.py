@@ -4,9 +4,10 @@ from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ReplyKeyboardRemove
+from datetime import datetime
 
 import app.keyboards as kb
-from app.database.requests import (set_user, set_basket, get_basket, get_item_by_id,
+from app.database.requests import (set_user, set_basket, get_basket, get_item_by_id, user_orders,
                                    delete_basket, get_item_name_by_id, get_collage_by_sub)
 
 from config import ADMIN_ID
@@ -14,8 +15,10 @@ from config import ADMIN_ID
 router = Router()
 
 
-class AddNumber(StatesGroup):
-    contact = State()
+class Add(StatesGroup):
+    order_contact = State()
+    add_questions = State()
+    answer_contact = State()
 
 
 @router.message(CommandStart())
@@ -27,8 +30,8 @@ async def cmd_start(message: Message | CallbackQuery):
                              reply_markup=kb.main)
     else:
         await message.answer('')
-        await message.message.answer("Добро пожаловать в Botanical Sueños!",
-                                     reply_markup=kb.main)
+        await message.message.edit_text("Добро пожаловать в Botanical Sueños!",
+                                        reply_markup=kb.main)
 
 
 @router.callback_query(F.data == 'to_cat')
@@ -43,9 +46,42 @@ async def catalog(callback: CallbackQuery):
 async def category(callback: CallbackQuery):
     await callback.answer('')
     await callback.message.edit_text('Выберите категорию:',
-                                     reply_markup=await kb.sub_categories(
-                                         callback.data.split('_')[1]
-                                     ))
+                                     reply_markup=await kb.sub_categories(callback.data.split('_')[1]))
+
+
+@router.callback_query(F.data == 'sub_Авторские')
+async def number(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer('Пожалуйста, ответьте на несколько вопросов:\n'
+                                  '1. Пожелание по цвету, цветам, стилистике. Какие цветы недопустимо использовать?\n'
+                                  '2. Кому предназначен букет? Какой возраст одариваемого?\n'
+                                  '3. Какой повод и формат мероприятия? Необходим ли подбор букета под ваш образ?\n'
+                                  '4. Ваш бюджет.\n'
+                                  '5. Если нужна доставка, то необходимо указать адрес для расчёта стоимости и интервал времени для вручения букета.')
+    await state.set_state(Add.add_questions)
+    await callback.answer('')
+
+
+@router.message(Add.add_questions)
+async def add_questions(message: Message, state: FSMContext):
+    await state.update_data(answer=message.text)
+    await state.set_state(Add.answer_contact)
+    await message.answer('Пожалуйста, отправьте контакт для связи:', reply_markup=kb.contact)
+
+
+@router.message(Add.answer_contact)
+async def answer_contact(message: Message, state: FSMContext):
+    await state.update_data(contact=message.contact.phone_number)
+    data = await state.get_data()
+    user_name = message.from_user.username or "Нет username"
+    full_name = message.from_user.full_name
+
+    answer_message = f"Новый ответ от {full_name} (@{user_name})\nТелефон: +{data['contact']}\nОтвет:\n{data['answer']}"
+
+    for admin_id in ADMIN_ID:
+        await message.bot.send_message(admin_id, answer_message)
+
+    await message.answer("Спасибо за ответ. Мы свяжемся с Вами в ближайшее время", reply_markup=ReplyKeyboardRemove())
+    await state.clear()
 
 
 @router.callback_query(F.data.startswith('sub_'))
@@ -56,7 +92,7 @@ async def number(callback: CallbackQuery):
     await callback.message.answer_photo(
         photo=collage.photo,
         caption='Выберите товар:',
-        reply_markup=await kb.get_items_number(subcategory_id))
+        reply_markup=await kb.get_items_name(subcategory_id))
 
 
 @router.callback_query(F.data.startswith('item_'))
@@ -103,22 +139,26 @@ async def delete_from_basket(callback: CallbackQuery):
 async def make_order(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.answer("Пожалуйста, отправьте контакт для связи:", reply_markup=kb.contact)
-    await state.set_state(AddNumber.contact)
+    await state.set_state(Add.order_contact)
     await callback.answer()
 
 
-@router.message(AddNumber.contact)
+@router.message(Add.order_contact)
 async def receive_phone(message: Message, state: FSMContext):
     await state.update_data(contact=message.contact.phone_number)
+    data = await state.get_data()
+    date = datetime.now().strftime("%d/%m/%Y")
     baskets = await get_basket(message.from_user.id)
     basket_items = baskets[0]
     user_name = message.from_user.username or "Нет username"
     full_name = message.from_user.full_name
 
-    basket_message = f"Новый заказ от {full_name} ({user_name}):\nТелефон: {message.contact.phone_number}\n" + "\n".join(basket_items)
+    basket_message = f"Новый заказ от {full_name} (@{user_name})\nТелефон: +{data['contact']}\n" + "\n".join(basket_items)
 
     for admin_id in ADMIN_ID:
         await message.bot.send_message(admin_id, basket_message)
+
+    await user_orders(user_name, full_name, message.contact.phone_number, basket_items, date)
 
     await delete_basket(message.from_user.id)
 
