@@ -146,12 +146,6 @@ async def set_users_order(tg_id, user_name, first_name, contact, items, date):
         await session.commit()
 
 
-# async def get_orders():
-#     async with async_session() as session:
-#         orders = await session.execute(select(Order))
-#         orders_list = orders.scalars().all()
-#         return orders_list
-
 
 async def get_orders():
     async with async_session() as session:

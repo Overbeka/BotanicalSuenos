@@ -4,6 +4,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from app.database.requests import (get_categories, get_sub_categories,
                                    get_item_by_id, get_items_by_subcategory)
 
+
 main = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Каталог', callback_data='catalog')],
     [InlineKeyboardButton(text='Корзина', callback_data='basket'),

@@ -2,7 +2,7 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 
-from config import TOKEN, TEST_TOKEN
+from config import TEST_TOKEN
 from app.database.models import async_main
 from app.handlers import router
 from app.admin import admin

@@ -7,8 +7,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from typing import List
 
 
-engine = create_async_engine(url=DB_URL,
-                             echo=True)
+engine = create_async_engine(url=DB_URL, echo=True)
 
 async_session = async_sessionmaker(engine)
 

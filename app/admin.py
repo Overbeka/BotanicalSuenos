@@ -198,7 +198,7 @@ async def new_price(message: Message, state: FSMContext):
 async def price(message: Message, state: FSMContext):
     await state.update_data(item=message.text)
     await state.set_state(SetPrice.price)
-    await message.answer('Введите новую цену в формате 4000/5000:')
+    await message.answer('Введите новую цену в формате 4/5:')
 
 
 @admin.message(SetPrice.price)
@@ -208,7 +208,7 @@ async def set_price(message: Message, state: FSMContext):
     item_price = message.text
 
     if not await valid_price(item_price):
-        await message.answer('Введите цену в корректном формате 4, 5/6 или 7/8/9.')
+        await message.answer('Введите цену в корректном формате 4, 5/6 или 7/8/9:')
         return
 
     result = await set_new_price(item_name, item_price)

@@ -9,8 +9,9 @@ import asyncio
 
 
 import app.keyboards as kb
-from app.database.requests import (set_user, set_basket, set_users_order, get_basket, get_item_by_id,
-                                   get_user_orders, delete_basket, get_item_name_by_id, get_collage_by_sub)
+from app.database.requests import (set_user, set_basket, set_users_order,
+                                   get_basket, get_item_by_id, get_user_orders,
+                                   delete_basket, get_item_name_by_id, get_collage_by_sub)
 
 from config import ADMIN_ID
 
@@ -75,7 +76,7 @@ async def add_questions(message: Message, state: FSMContext):
 async def answer_contact(message: Message, state: FSMContext):
     await state.update_data(contact=message.contact.phone_number)
     data = await state.get_data()
-    user_name = message.from_user.username or "Нет username"
+    user_name = message.from_user.username
     first_name = message.from_user.first_name
 
     answer_message = (f"Новый ответ от {first_name} (@{user_name})\n"
@@ -175,16 +176,18 @@ async def receive_phone(message: Message, state: FSMContext):
     first_name = message.from_user.first_name
     tg_id = message.from_user.id
 
-    basket_message = f"Новый заказ от {first_name} (@{user_name})\nТелефон: +{data['contact']}\n" + "\n".join(basket_items)
+    basket_message = (f"Новый заказ от {first_name} (@{user_name})\n"
+                      f"Телефон: +{data['contact']}\n") + "\n".join(basket_items)
 
     for admin_id in ADMIN_ID:
         await message.bot.send_message(admin_id, basket_message)
 
-    await set_users_order(tg_id, user_name, first_name, message.contact.phone_number, basket_items, date)
+    await set_users_order(tg_id, user_name, first_name, data['contact'], basket_items, date)
 
     await delete_basket(message.from_user.id)
 
-    message = await message.answer("Спасибо за заказ. Мы свяжемся с Вами в ближайшее время", reply_markup=ReplyKeyboardRemove())
+    message = await message.answer("Спасибо за заказ. Мы свяжемся с Вами в ближайшее время",
+                                   reply_markup=ReplyKeyboardRemove())
     await asyncio.sleep(3)
     await message.delete()
     await message.answer("Добро пожаловать в Botanical Sueños!", reply_markup=kb.main)
