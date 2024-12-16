@@ -1,4 +1,3 @@
-import os
 import asyncio
 
 from aiogram import Bot, Dispatcher
@@ -17,7 +16,8 @@ async def main():
     bot_commands = [
         BotCommand(command="/admin", description="Команды для администраторов"),
         BotCommand(command="/start", description="Запустить бота"),
-        BotCommand(command="/contacts", description="Список контактов.")
+        BotCommand(command="/my_orders", description="Список ваших заказов"),
+        BotCommand(command="/contacts", description="Список контактов")
     ]
 
     bot = Bot(token=TEST_TOKEN)

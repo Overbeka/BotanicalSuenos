@@ -50,11 +50,10 @@ class Item(Base):
     name: Mapped[str] = mapped_column(String(35))
     category: Mapped[int] = mapped_column(ForeignKey('categories.id'))
     subcategory: Mapped[int] = mapped_column(ForeignKey('subcategories.id'))
-    description: Mapped[int] = mapped_column(String(256))
-    sizes: Mapped[str] = mapped_column(String(10))
+    description: Mapped[str] = mapped_column(String(256), nullable=True)
+    sizes: Mapped[str] = mapped_column(String(20), nullable=True)
     prices: Mapped[str] = mapped_column(String(25))
     photo: Mapped[str] = mapped_column(String(128))
-    position: Mapped[int] = mapped_column()
 
     category_rel: Mapped['Category'] = relationship(back_populates='item_rel')
     basket_rel: Mapped[List['Basket']] = relationship(back_populates='item_rel')
@@ -84,8 +83,9 @@ class Order(Base):
     __tablename__ = 'orders'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_name: Mapped[str] = mapped_column(String(20))
-    full_name: Mapped[str] = mapped_column(String(40))
+    tg_id = mapped_column(BigInteger)
+    user_name: Mapped[str] = mapped_column(String(32), nullable=True)
+    first_name: Mapped[str] = mapped_column(String(32))
     contact: Mapped[str] = mapped_column(String(25))
     items: Mapped[str] = mapped_column(String(256))
     date: Mapped[str] = mapped_column(String(20))

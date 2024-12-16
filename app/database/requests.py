@@ -1,7 +1,7 @@
 from app.database.models import User, Category, SubCategory, Item, Basket, Collage, Order
 from app.database.models import async_session
 
-from sqlalchemy import select, update, delete, func
+from sqlalchemy import select, update, delete, func, desc
 
 
 async def set_user(tg_id):
@@ -25,17 +25,9 @@ async def set_collage(data):
         await session.commit()
 
 
-async def get_last_item(position):
-    async with async_session() as session:
-        result = await session.execute(
-            select(Item).where(Item.position == position).order_by(Item.id.desc()))
-    return result.scalars().first()
-
-
 async def count_items():
     async with async_session() as session:
-        result = await session.execute(
-            select(func.count()).select_from(Item))
+        result = await session.execute(select(func.count()).select_from(Item))
         return result.scalars().first()
 
 
@@ -44,6 +36,24 @@ async def set_basket(tg_id, item_id):
         user = await session.scalar(select(User).where(User.tg_id == tg_id))
         session.add(Basket(user=user.id, item=item_id))
         await session.commit()
+
+
+async def set_new_price(item_name, item_price):
+    async with async_session() as session:
+        result = await session.execute(select(Item).where(Item.name == item_name))
+        item = result.scalar_one_or_none()
+
+        if item:
+            item.prices = item_price
+            session.add(item)
+            await session.commit()
+            return True
+        return False
+
+
+async def valid_price(prices: str):
+    parts = prices.split('/')
+    return all(part.isdigit() for part in parts)
 
 
 async def get_basket(tg_id):
@@ -104,15 +114,10 @@ async def get_items_by_subcategory(subcategory_id):
         return items.all()
 
 
-async def get_items_position(item_pos: int):
-    async with async_session() as session:
-        return await session.scalars(select(Item).where(Item.position == item_pos))
-
-
-async def get_items_by_category(category_id: int):
-    async with async_session() as session:
-        items = await session.scalars(select(Item).where(Item.category == category_id))
-        return items
+# async def get_items_by_category(category_id: int):
+#     async with async_session() as session:
+#         items = await session.scalars(select(Item).where(Item.category == category_id))
+#         return items
 
 
 async def get_item_by_id(item_id: int):
@@ -127,11 +132,12 @@ async def get_item_name_by_id(item_id: int):
         return item.name if item else "Неизвестный товар"
 
 
-async def user_orders(user_name, full_name, contact, items, date):
+async def set_users_order(tg_id, user_name, first_name, contact, items, date):
     async with async_session() as session:
         new_order = Order(
+            tg_id=tg_id,
             user_name=user_name,
-            full_name=full_name,
+            first_name=first_name,
             contact=contact,
             items="\n".join(items),
             date=date
@@ -140,10 +146,24 @@ async def user_orders(user_name, full_name, contact, items, date):
         await session.commit()
 
 
+# async def get_orders():
+#     async with async_session() as session:
+#         orders = await session.execute(select(Order))
+#         orders_list = orders.scalars().all()
+#         return orders_list
+
+
 async def get_orders():
     async with async_session() as session:
-        orders = await session.execute(select(Order))
+        query = select(Order).order_by(desc(Order.id)).limit(5)
+        orders = await session.execute(query)
         orders_list = orders.scalars().all()
+        orders_list.sort(key=lambda order: order.id)
         return orders_list
 
 
+async def get_user_orders(tg_id):
+    async with async_session() as session:
+        user_order = await session.execute(select(Order).where(Order.tg_id == tg_id))
+        user_order_list = user_order.scalars().all()
+        return user_order_list
