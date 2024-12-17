@@ -94,12 +94,6 @@ async def sizes_keyboard(item_id: int):
     return keyboard.adjust(2).as_markup()
 
 
-            # keyboard.add(InlineKeyboardButton(
-            #     text=f'{sizes[i]} - {prices[i]}' if i < len(prices) else sizes[i],
-            #     callback_data=f'size_{item.id}_{sizes[i]}_{prices[i] if i < len(prices) else ""}'
-            # ))
-
-
 basket_keyboard = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Оформить заказ', callback_data='make_order')],
     [InlineKeyboardButton(text='Очистить корзину', callback_data='clear_basket'),

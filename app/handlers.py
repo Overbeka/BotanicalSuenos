@@ -125,19 +125,6 @@ async def to_basket(callback: CallbackQuery):
                                   reply_markup=kb.add_keyboard)
 
 
-# @router.callback_query(F.data.startswith('size_'))
-# async def to_basket(callback: CallbackQuery):
-#     _, item_id, size, price = callback.data.split('_')
-#     item_name = await get_item_name_by_id(item_id)
-#     basket_entry = f"{item_name}, Размер: {size}, Цена: {price}"
-#     await set_basket(callback.from_user.id, basket_entry)
-#
-#     await callback.answer('')
-#     await callback.message.answer('Товар добавлен в корзину. '
-#                                   'Вы можете оформить заказ или продолжить покупки',
-#                                   reply_markup=kb.add_keyboard)
-
-
 @router.callback_query(F.data == 'to_sub')
 @router.callback_query(F.data == 'to_col')
 @router.callback_query(F.data == 'cont')
