@@ -1,7 +1,7 @@
+from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from app.database.requests import (get_categories, get_sub_categories,
+from app.database.requests import (get_categories, get_sub_categories, get_all_items,
                                    get_item_by_id, get_items_by_subcategory)
 
 
@@ -14,7 +14,26 @@ main = InlineKeyboardMarkup(inline_keyboard=[
 
 contact = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='Отправить контакт', request_contact=True)]],
-    resize_keyboard=True, input_field_placeholder='Отправьте контакт')
+    resize_keyboard=True, input_field_placeholder='Отправьте контакт...')
+
+
+sizes = ReplyKeyboardMarkup(keyboard=[
+    [KeyboardButton(text='-'),
+     KeyboardButton(text='S'),
+     KeyboardButton(text='M')],
+    [KeyboardButton(text='S/M'),
+     KeyboardButton(text='M/L'),
+     KeyboardButton(text='S/M/L')]],
+    resize_keyboard=True, input_field_placeholder='Выберите нужный размер...')
+
+
+async def all_items():
+    items = await get_all_items()
+
+    keyboard = ReplyKeyboardBuilder()
+    for item in items:
+        keyboard.add(KeyboardButton(text=item.name))
+    return keyboard.adjust(2).as_markup()
 
 
 async def categories():
@@ -61,7 +80,7 @@ async def sizes_keyboard(item_id: int):
         for i in range(len(sizes)):
 
             keyboard.add(InlineKeyboardButton(
-                text=f'{sizes[i]} - {prices[i]}' if i < len(prices) else sizes[i],
+                text=f'{sizes[i]}' if i < len(prices) else sizes[i],
                 callback_data=f'size_{item.id}_{sizes[i]}_{prices[i] if i < len(prices) else ""}'
             ))
     else:
@@ -73,6 +92,12 @@ async def sizes_keyboard(item_id: int):
 
     keyboard.add(InlineKeyboardButton(text='Назад', callback_data='to_col'))
     return keyboard.adjust(2).as_markup()
+
+
+            # keyboard.add(InlineKeyboardButton(
+            #     text=f'{sizes[i]} - {prices[i]}' if i < len(prices) else sizes[i],
+            #     callback_data=f'size_{item.id}_{sizes[i]}_{prices[i] if i < len(prices) else ""}'
+            # ))
 
 
 basket_keyboard = InlineKeyboardMarkup(inline_keyboard=[

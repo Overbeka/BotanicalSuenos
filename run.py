@@ -1,23 +1,23 @@
 import asyncio
 
 from aiogram import Bot, Dispatcher
+from aiogram.types import BotCommand
+
 
 from config import TEST_TOKEN
 from app.database.models import async_main
 from app.handlers import router
 from app.admin import admin
 
-from aiogram.types import BotCommand
-
 
 async def main():
 
     await async_main()
     bot_commands = [
-        BotCommand(command="/admin", description="Команды для администраторов"),
-        BotCommand(command="/start", description="Запустить бота"),
+        BotCommand(command="/start", description="Начать покупки"),
+        BotCommand(command="/contacts", description="Список контактов"),
         BotCommand(command="/my_orders", description="Список ваших заказов"),
-        BotCommand(command="/contacts", description="Список контактов")
+        BotCommand(command="/admin", description="Команды для администраторов")
     ]
 
     bot = Bot(token=TEST_TOKEN)

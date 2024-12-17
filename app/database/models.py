@@ -1,10 +1,10 @@
-from config import DB_URL
-
+from typing import List
 from sqlalchemy import BigInteger, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncAttrs
 
-from typing import List
+
+from config import DB_URL
 
 
 engine = create_async_engine(url=DB_URL, echo=True)

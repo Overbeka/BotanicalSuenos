@@ -1,7 +1,8 @@
-from app.database.models import User, Category, SubCategory, Item, Basket, Collage, Order
-from app.database.models import async_session
-
 from sqlalchemy import select, update, delete, func, desc
+
+
+from app.database.models import async_session
+from app.database.models import User, Category, SubCategory, Item, Basket, Collage, Order
 
 
 async def set_user(tg_id):
@@ -114,16 +115,17 @@ async def get_items_by_subcategory(subcategory_id):
         return items.all()
 
 
-# async def get_items_by_category(category_id: int):
-#     async with async_session() as session:
-#         items = await session.scalars(select(Item).where(Item.category == category_id))
-#         return items
-
-
 async def get_item_by_id(item_id: int):
     async with async_session() as session:
         item = await session.scalar(select(Item).where(Item.id == item_id))
     return item
+
+
+async def get_all_items():
+    async with async_session() as session:
+        result = await session.execute(select(Item))
+        items = result.scalars().all()
+    return items
 
 
 async def get_item_name_by_id(item_id: int):
@@ -146,7 +148,6 @@ async def set_users_order(tg_id, user_name, first_name, contact, items, date):
         await session.commit()
 
 
-
 async def get_orders():
     async with async_session() as session:
         query = select(Order).order_by(desc(Order.id)).limit(5)
@@ -161,3 +162,20 @@ async def get_user_orders(tg_id):
         user_order = await session.execute(select(Order).where(Order.tg_id == tg_id))
         user_order_list = user_order.scalars().all()
         return user_order_list
+
+
+async def valid_number(message):
+
+    if message.contact and message.contact.phone_number:
+        phone_number = message.contact.phone_number
+    elif message.text:
+        phone_number = message.text.strip()
+    else:
+        await message.answer("Пожалуйста, предоставьте номер телефона.")
+        return None
+
+    if len(phone_number) != 11 or not phone_number.isdigit() or not phone_number.startswith('7'):
+        await message.answer("Номер телефона должен начинаться с 7 и содержать 11 цифр. Попробуйте еще раз.")
+        return None
+
+    return phone_number
