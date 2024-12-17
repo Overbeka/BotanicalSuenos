@@ -164,6 +164,17 @@ async def get_user_orders(tg_id):
         return user_order_list
 
 
+async def get_item_price(item_name):
+    async with async_session() as session:
+        result = select(Item).where(Item.name == item_name)
+        result_1 = await session.execute(result)
+
+        item = result_1.scalar_one_or_none()
+        if item:
+            return item.prices
+        return None
+
+
 async def valid_number(message):
 
     if message.contact and message.contact.phone_number:

@@ -8,7 +8,7 @@ import app.keyboards as kb
 from config import ADMIN_ID
 from app.states import AddItem, AddCollage, SetPrice, News
 from app.database.requests import (set_new_price, set_item, set_collage,
-                                   get_users, get_orders,
+                                   get_users, get_orders, get_item_price,
                                    valid_price, count_items)
 
 admin = Router()
@@ -176,8 +176,11 @@ async def new_price(message: Message, state: FSMContext):
 @admin.message(SetPrice.item)
 async def price(message: Message, state: FSMContext):
     await state.update_data(item=message.text)
+    item_name = message.text
+    old_price = await get_item_price(item_name)
+
     await state.set_state(SetPrice.price)
-    await message.answer('Введи новую цену в формате 4/5:')
+    await message.answer(f'Текущая цена: {old_price}. Введи новую цену в таком же формате:')
 
 
 @admin.message(SetPrice.price)
